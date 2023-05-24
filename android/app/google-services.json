@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "198728748890",
+    "project_id": "skylancer-afew",
+    "storage_bucket": "skylancer-afew.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198728748890:android:66f1f0db3b25989d38ad63",
+        "android_client_info": {
+          "package_name": "com.Afew.skylancerafew"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "198728748890-jnme3hllrju6i6gn17lajfrf5vfietlh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTCxNpPM5rS9WfCcNgKDVRUdtPnV8KMfo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "198728748890-jnme3hllrju6i6gn17lajfrf5vfietlh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
