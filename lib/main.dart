@@ -1,17 +1,13 @@
+
+import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:skylancerafew/pages/HizmetAlRegisterPage.dart';
-import 'package:skylancerafew/pages/HizmetVerRegisterPage1.dart';
-import 'package:skylancerafew/pages/HizmetVerRegisterPage2.dart';
-import 'package:skylancerafew/pages/loginpage.dart';
-import 'constants/routes.dart';
-import 'pages/HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'pages/RegisterPage1.dart';
-
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:skylancer/KayitSayfalar/RegisterPage1.dart';
+import 'package:skylancer/routePage.dart';
+import 'package:skylancer/sifre_unuttum.dart';
 
 
 
@@ -19,111 +15,203 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Sky Lancer',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home:  HomePage(),
-      routes: {
-        loginRoute : (context) => const LoginPage(),
-        registerPage1Route : (context) => RegisterPage1(),
-        hizmetAlRegisterRoute : (context) => HizmetAlRegisterPage(),
-        hizmetVerRegister1Route : (context) => HizmetVerRegisterPage1(),
-        hizmetVerRegister2Route : (context) => HizmetVerRegisterPage2(),
-        verifyEmailRoute :(context) => const VerifyEmailPage(),
-      },
-      // FutureBuilder<bool>(
-      //   future: keepUser(),
-      //   builder: (context,snapshot){
-      //     if(snapshot.hasData){
-      //       bool? gecisIzni = snapshot.data;
-      //       if(gecisIzni != null){
-      //         return gecisIzni ? HomePage() : MyHomePage(title: "null");
-      //         }
-      //       return Container();
-      //       }else{
-      //       return Container();
-      //     }
-      //   }
-      // ),
-    ),
-  );
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
-// class MyApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
 
-//   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  Future<bool> keepUser() async{
+    var sp = await SharedPreferences.getInstance();
+    String userID = sp.getString("mail") ?? "";
+    String sifreID = sp.getString("sifre") ?? "";
+    String rolID = sp.getString("rol") ?? "";
+    print("$userID , SIFREM : $sifreID BENIM ROLUM $rolID ************");
 
-//   Future<bool> keepUser() async{
-//     var sp = await SharedPreferences.getInstance();
-
-//     String userID = sp.getString("userID") ?? "";
-//     String sifreID = sp.getString("sifreID") ?? "";
-
-//     if(userID.isNotEmpty && sifreID.isNotEmpty){
-//       return true;
-//     }else{
-//       return false;
-//     }
-//   }
-
+    if(userID.isNotEmpty && sifreID.isNotEmpty){
+      return true;
+    }else{
+      return false;
+    }
+  }
 
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return ;// MaterialApp(
-//     //   debugShowCheckedModeBanner: false,
-//     //   title: 'Flutter Demo',
-//     //   theme: ThemeData(
 
-//     //     primarySwatch: Colors.blue,
-//     //   ),
-//     //   home: FutureBuilder<bool>(
-//     //     future: keepUser(),
-//     //     builder: (context,snapshot){
-//     //       if(snapshot.hasData){
-//     //         bool? gecisIzni = snapshot.data;
-//     //         if(gecisIzni != null){
-//     //           return gecisIzni ? HomePage() : MyHomePage(title: "null");
-//     //           }
-//     //         return Container();
-//     //         }else{
-//     //         return Container();
-//     //       }
-//     //     }
-//     //   )
-//     // );
-//   }
-// }
 
-class MyHomePage extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+
+        primarySwatch: Colors.blue,
+      ),
+      home: FutureBuilder<bool>(
+          future: keepUser(),
+          builder: (context,snapshot){
+            if(snapshot.hasData){
+              bool? gecisIzni = snapshot.data;
+              if (gecisIzni != null) {
+                return gecisIzni ? routePage() : MyHomePage(title: "null");
+              }
+              return Container();
+            }else{
+              return Container();
+            }
+          }
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
 
   final String title;
 
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
-// class _MyHomePageState extends State<MyHomePage> {
-//   int _counter = 0;
+class _MyHomePageState extends State<MyHomePage> {
+
+  int _counter = 0;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  int? rol;
+  String? aMail;
+  String? aSifre;
+  String? deneme;
+  var _mailcontroller = TextEditingController();
+  var _sifrecontroller = TextEditingController();
 
 
-//   void veritabanitest() async{
-//     FirebaseFirestore firestore = FirebaseFirestore.instance;
-//     setState(() {
 
-//       _counter++;
-//     });
-//     await firestore.collection("test").doc("$_counter").set({
-//       'topla': "${_counter+_counter}"
-//     });
+  void login(String mail) async {
+    // Firestore veritabanına bağlan
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-//   }
+
+    // Kullanıcının girilen mailine göre sorgu yap
+    var user = await firestore.collection("users").where("mail", isEqualTo: aMail).get();
+
+    // Eğer sorgu sonucunda bir kullanıcı dönerse
+    if (user.size == 1) {
+
+      for (var user in user.docs) {
+
+        // Kullanıcının TC numarası doğrulandı
+        print("TC numarası doğrulandı : $aMail");
+        // Kullanıcının şifresini al
+
+        var sifre = user.data()["sifre"];
+        rol = user.data()["rol"];
+        // Kullanıcının girilen şifresiyle saklanan şifreyi karşılaştır
+        if (sifre != null && sifre == aSifre) {
+          // Şifreler eşleşirse kullanıcı giriş yaptı
+          print("Giriş yaptı");
+          // girisKontrol();
+          girisSPkayit();
+          FancySnackbar.showSnackbar(
+            context,
+            snackBarType: FancySnackBarType.success,
+            title: "Giriş Başarılı!",
+            message: "",
+            duration: 3,
+            onCloseEvent: () {
+              Navigator.pushReplacement( context, MaterialPageRoute(builder: (context) => routePage()),);
+            },
+          );
+
+
+
+          break;
+        } else {
+          // Şifreler eşleşmezse hata mesajı göster
+          print("Hatalı şifre");
+          if(aMail==null || aMail!.isEmpty){
+            FancySnackbar.showSnackbar(
+              context,
+              snackBarType: FancySnackBarType.error,
+              title: "Lütfen bir mail adresi giriniz.",
+              message: " ",
+              duration: 4,
+              onCloseEvent: () {
+
+              },
+
+
+
+            );}
+          else{
+            FancySnackbar.showSnackbar(
+              context,
+              snackBarType: FancySnackBarType.error,
+              title: "Kullanıcı bilgileri hatalı.",
+              message: "Lütfen bilgilerinizi tekrar giriniz.",
+              duration: 4,
+              onCloseEvent: () {
+
+              },
+            );}
+        }
+      }
+    } else {
+      // Eğer sorgu sonucunda kullanıcı bulunamazsa hata mesajı göster
+      print("mail adresi bulunamadı");
+      if(mail.isEmpty){
+        FancySnackbar.showSnackbar(
+          context,
+          snackBarType: FancySnackBarType.error,
+          title: "Lütfen bir mail adresi giriniz.",
+          message: "",
+          duration: 4,
+          onCloseEvent: () {
+
+          },
+        );}
+      else{
+        FancySnackbar.showSnackbar(
+          context,
+          snackBarType: FancySnackBarType.error,
+          title: "Kullanıcı bilgileri hatalı.",
+          message: "Lütfen bilgilerinizi tekrar giriniz.",
+          duration: 4,
+          onCloseEvent: () {
+
+          },
+        );
+      }
+    }
+  }
+
+  void girisSPkayit() async{
+    // var userID = aMail;
+    // var sifreID = aSifre;
+
+    var sp = await SharedPreferences.getInstance();
+    sp.setString("mail", "$aMail");
+    sp.setString("sifre", "$aSifre");
+    sp.setString("rol", "$rol");
+    sp.setBool("giris", true);
+  }
+
+
+
+  void veritabanitest() async{
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    setState(() {
+
+      _counter++;
+    });
+    await firestore.collection("test").doc("$_counter").set({
+      'topla': "${_counter+_counter}"
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +245,7 @@ class MyHomePage extends StatelessWidget {
               ],
             ),
             Container(height: eYuk/20,),
+            
             // Email Texformfield
             Row(
               children: [
@@ -176,6 +265,13 @@ class MyHomePage extends StatelessWidget {
                 SizedBox(
                   width: eGen/1.3, height: 20,
                   child: TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: _mailcontroller,
+                    onChanged: (alinanMail) {
+                      setState(() {
+                        aMail = alinanMail;
+                      });
+                    },
 
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
@@ -223,6 +319,13 @@ class MyHomePage extends StatelessWidget {
                 SizedBox(
                   width: eGen/1.3, height: 20,
                   child: TextFormField(
+                    obscureText: true,
+                    controller: _sifrecontroller,
+                    onChanged: (alinanSifre) {
+                      setState(() {
+                         aSifre = alinanSifre;
+                      });
+                    },
 
                     decoration: InputDecoration(
                       border: UnderlineInputBorder(
@@ -256,6 +359,8 @@ class MyHomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return SifreUnuttum();},),);
                   print('sifre destegi');
                 },
                 child: Text("Şifremi Unuttum",style: GoogleFonts.getFont('Balsamiq Sans',
@@ -275,7 +380,11 @@ class MyHomePage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // Butona basıldığında gerçekleşecek işlemler
-                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage() ));
+                aSifre = _sifrecontroller.text;
+                aMail = _mailcontroller.text;
+                print("Mail : $aMail  Sifre : $aSifre");
+                login("$aMail");
+
                 print('Giriş Yap butonuna basıldı');
               },
                 child: Text("Giriş Yap",style: GoogleFonts.getFont('Balsamiq Sans',
@@ -303,6 +412,8 @@ class MyHomePage extends StatelessWidget {
                 onPressed: () {
                   // Butona basıldığında gerçekleşecek işlemler
                   print('Google ile Giriş Yap Butonuna basıldı');
+
+
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,

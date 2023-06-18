@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -50,19 +47,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCxvujZVeIZxqteMh21DwnD5yTwul8nlvQ',
-    appId: '1:198728748890:web:9af2199566e49fd938ad63',
-    messagingSenderId: '198728748890',
-    projectId: 'skylancer-afew',
-    authDomain: 'skylancer-afew.firebaseapp.com',
-    storageBucket: 'skylancer-afew.appspot.com',
+    apiKey: 'AIzaSyBhFD8VyNb2qGQ9k8Vbapcpl0bYbQ6Jngs',
+    appId: '1:684946722252:web:63381757a34b3e019d6169',
+    messagingSenderId: '684946722252',
+    projectId: 'skylancer-91511',
+    authDomain: 'skylancer-91511.firebaseapp.com',
+    storageBucket: 'skylancer-91511.appspot.com',
+    measurementId: 'G-QR1Y1G2D72',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCTCxNpPM5rS9WfCcNgKDVRUdtPnV8KMfo',
-    appId: '1:198728748890:android:66f1f0db3b25989d38ad63',
-    messagingSenderId: '198728748890',
-    projectId: 'skylancer-afew',
-    storageBucket: 'skylancer-afew.appspot.com',
+    apiKey: 'AIzaSyCVJa0FkG4Pa-omQ2I60m7eHbhxG15lyHQ',
+    appId: '1:684946722252:android:cc23e4480b46359e9d6169',
+    messagingSenderId: '684946722252',
+    projectId: 'skylancer-91511',
+    storageBucket: 'skylancer-91511.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDaXzGo48YBEHzfRkXEhe-zlIXxcJt88iw',
+    appId: '1:684946722252:ios:246513590116a2bb9d6169',
+    messagingSenderId: '684946722252',
+    projectId: 'skylancer-91511',
+    storageBucket: 'skylancer-91511.appspot.com',
+    androidClientId: '684946722252-l31h0mcfk5i831o40nmsq572ai6jg4je.apps.googleusercontent.com',
+    iosClientId: '684946722252-halr70dsve4dei4brfq6c0sedtmtol77.apps.googleusercontent.com',
+    iosBundleId: 'com.selmanaslan.skylancer.skylancer',
   );
 }
