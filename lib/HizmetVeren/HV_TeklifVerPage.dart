@@ -1,13 +1,13 @@
-
+import 'dart:collection';
 
 import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skylancer/HizmetVeren/HV_HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 
@@ -89,7 +89,7 @@ class _HV_TeklifVerPageState extends State<HV_TeklifVerPage> {
   }
 
   void teklifVer() {
-    if(TRY==0){
+    if(TRY==0 || TRY==null){
       FancySnackbar.showSnackbar(
         context,
         snackBarType: FancySnackBarType.error,
@@ -273,7 +273,7 @@ class _HV_TeklifVerPageState extends State<HV_TeklifVerPage> {
                           keyboardType: TextInputType.number,
                           onChanged: (value ) {
                             setState(() {
-                              if(value.isEmpty){
+                              if(value.isEmpty || value==null){
                                 TRY = 0;
                               }
                               TRY = int.parse(value);

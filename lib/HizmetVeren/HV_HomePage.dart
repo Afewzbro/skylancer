@@ -1,14 +1,18 @@
+import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skylancer/HizmetVeren/HV_TeklifVerPage.dart';
+import 'package:skylancer/OrtakSayfalar/bizeUlasin.dart';
+import 'package:skylancer/OrtakSayfalar/hesapAyarlar.dart';
+import 'package:skylancer/OrtakSayfalar/hizmetOdemelerim.dart';
 import 'package:skylancer/main.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-
+import 'package:dropdown_button2/src/dropdown_button2.dart';
 
 import '../ilveIlce.dart';
 
@@ -32,6 +36,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
   String? soyad;
   String? userID;
   int sayac = 0;
+  int i = 0;
   //Aktif İlanlar backend
 
   String? getIl;
@@ -41,7 +46,11 @@ class _HV_HomePageState extends State<HV_HomePage> {
   String? getHastalik;
   String? getAciklama;
   String? getIlanID;
+  String? TRY;
   List<String> favoriIlanlar = [];
+  List<String> teklifler = [];
+  List<String> teklifTRY = [];
+
 
 
   Future<void> removeFavori(String ilanID, String userID) async {
@@ -99,9 +108,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
     var veri = querySnapshot.docs;
-    for(var docu in veri){
-      print(docu.data());
-    }
+
     print("$userID");
     print(querySnapshot.size);
     return querySnapshot.docs;
@@ -125,6 +132,8 @@ class _HV_HomePageState extends State<HV_HomePage> {
   // Favori İlanlarım Backend
 
   Future<List<DocumentSnapshot>> getFavIlanlar() async {
+
+
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('ilanlar')
         .where('aktif', isEqualTo: 1)
@@ -149,11 +158,64 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
     var veri = querySnapshot.docs;
-    for(var docu in veri){
-      print(docu.data());
-    }
+
     print("$userID");
     print(querySnapshot.size);
+    return querySnapshot.docs;
+  }
+
+  Future<List<DocumentSnapshot>> getTeklifler() async {
+    i = 0;
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('ilanlar')
+        .where('aktif', isEqualTo: 1)
+        .get();
+
+
+    teklifTRY.clear();
+    for (DocumentSnapshot doc in querySnapshot.docs) {
+      QuerySnapshot teklifDocs = await doc.reference
+          .collection('teklifVeren')
+          .where('teklifSahibi', isEqualTo: userID)
+          .get();
+
+
+
+
+      if (teklifDocs.docs.isNotEmpty) {
+
+        for (DocumentSnapshot teklifDoc in teklifDocs.docs) {
+          Map<String, dynamic> data = teklifDoc.data() as Map<String, dynamic>;
+          TRY = data['teklif'];
+
+
+          teklifTRY.add("$TRY");
+        }
+        print("teklifTRY : : $teklifTRY");
+
+
+
+        if (!teklifler.contains(doc.id)) {
+          teklifler.add(doc.id);
+          print("teklifler liste oluştururken ekledim");
+        }
+
+
+
+
+      }else{
+        print("teklif docs boş");
+      }
+    }
+
+
+
+    var veri = querySnapshot.docs;
+
+    print("$userID");
+    print(querySnapshot.size);
+    print("teklifler : $teklifler ***************");
     return querySnapshot.docs;
   }
 
@@ -404,11 +466,180 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
 
-      body: pageIndex ==0 ? // Tekliflerim ********
+      body: pageIndex ==0 ? // Tekliflerim **********************
 
       SingleChildScrollView(
         child: Center(
+          child: FutureBuilder(
+            future: getTeklifler(),
+            builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Hata: ${snapshot.error}');
+              } else {
+                return Column(
+                  children: snapshot.data!.map((document) {
+                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                    getIl = data['il'];
+                    getIlce = data["ilce"];
+                    getDekar = data["dekar"];
+                    getUrun = data["urun"];
+                    getHastalik = data["hastalik"];
+                    getIlanID = data["ID"];
+                    String? IlanID = data["ID"];
+                    String _teklifVerdi= "false";
+                    print("index degeri = $i");
+                    if (teklifTRY.length > i) {
+                      TRY = teklifTRY[i];
+                      print("index degeri = $i");
 
+                      i = i + 1;
+                    }
+                    if(teklifler.contains(getIlanID)){
+                      _teklifVerdi = "true";
+                    }else{
+                      _teklifVerdi = "false";
+                    }
+
+
+
+
+
+
+
+
+                    if(_teklifVerdi=="true"){
+                      return Container(
+                          child: Column(
+                            children: [
+                              SizedBox(height: eYuk/40,),
+                              Container(
+                                width: eGen/1.1,
+                                height: eYuk/4,
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: eYuk/100,),
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getIl - $getIlce",style: GoogleFonts.getFont('Balsamiq Sans',
+                                          fontSize: eGen/20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+
+                                        ),),
+
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getDekar Dönüm $getUrun",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getHastalik İlaçlaması",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("Dekarı $TRY Türk Lirası",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.black,
+                                              width: 2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: SizedBox(height: eYuk/20, width: eGen/3,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+
+
+
+
+
+                                              },
+                                              child: Text("",style: GoogleFonts.getFont('Balsamiq Sans',
+                                                fontSize: eGen/20,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              style: ElevatedButton.styleFrom(
+                                                primary: Colors.green,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10), // Kenarların oval yapısı
+                                                ),
+
+
+                                              ),
+                                            ),),
+                                        ),
+                                        SizedBox(width: eGen/40,),
+
+
+                                      ],
+                                    )
+
+                                  ],
+                                ),
+
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.black, // Çerçevenin rengini belirleyin
+                                    width: 2, // Çerçevenin kalınlığını belirleyin
+                                  ),
+                                  borderRadius: BorderRadius.circular(15), // Kenarları oval yapın
+                                ),
+                              ),
+
+
+
+                            ],
+                          )
+                      );
+                    }else{
+                      return Container();
+                    }
+
+                  }).toList(),
+                );
+              }
+            },
+          ),
         ),
 
 
@@ -422,7 +653,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
 
-      ) : pageIndex == 1 ?  // Favorilerim ********
+      ) : pageIndex == 1 ?  // Favorilerim **********************
       SingleChildScrollView(
         child: Center(
           child: FutureBuilder(
@@ -626,7 +857,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
 
-      ) : pageIndex == 2 ? // Aktif İlanlar ********
+      ) : pageIndex == 2 ? // Aktif İlanlar **********************
       SingleChildScrollView(
         child: Center(
           child: FutureBuilder(
@@ -818,7 +1049,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
 
 
 
-      ) : pageIndex == 3 ? // Profilim ********
+      ) : pageIndex == 3 ? // Profilim **********************
       SingleChildScrollView(
         child: Center(
           child: Column(
@@ -944,6 +1175,8 @@ class _HV_HomePageState extends State<HV_HomePage> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     // Butona tıklama olayını buraya ekleyin
+                    Navigator.push( context, MaterialPageRoute(builder: (context) => hizmetOdemelerimPage()),);
+
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -978,7 +1211,8 @@ class _HV_HomePageState extends State<HV_HomePage> {
                 width: eGen, height: eYuk/12,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Butona tıklama olayını buraya ekleyin
+                    Navigator.push( context, MaterialPageRoute(builder: (context) => hesapAyarlarPage()),);
+
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -1047,7 +1281,7 @@ class _HV_HomePageState extends State<HV_HomePage> {
                 width: eGen, height: eYuk/12,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Butona tıklama olayını buraya ekleyin
+                    Navigator.push( context, MaterialPageRoute(builder: (context) => bizeUlasinPage()),);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
