@@ -44,6 +44,9 @@ class _HA_HomePageState extends State<HA_HomePage> {
   String? getHastalik;
   String? getAciklama;
   String? getIlanID;
+  List<DocumentSnapshot> teklifler = [];
+
+
 
   Future<List<DocumentSnapshot>> getIlanlar() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -51,14 +54,46 @@ class _HA_HomePageState extends State<HA_HomePage> {
         .where('ilanSahibi', isEqualTo: "$userID")
         .where('aktif', isEqualTo: 1)
         .get();
-    var veri = querySnapshot.docs;
-    for(var docu in veri){
-      print(docu.data());
-    }
+
     print("$userID");
     print(querySnapshot.size);
     return querySnapshot.docs;
   }
+
+  Future<List<DocumentSnapshot>> getTeklifler() async {
+    teklifler.clear();
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('ilanlar')
+        .where('ilanSahibi', isEqualTo: "$userID")
+        .where('aktif', isEqualTo: 1)
+        .get();
+
+
+
+
+    for (var doc in querySnapshot.docs) {
+
+      QuerySnapshot teklifSnapshot = await FirebaseFirestore.instance
+          .collection('ilanlar')
+          .doc(doc.id)
+          .collection('teklifVeren')
+          .get();
+
+      teklifler.addAll(teklifSnapshot.docs);
+
+    }
+
+    
+    for (var teklif in teklifler) {
+      print('Teklif ID: ${teklif['teklif']}');
+      print('Teklif Adı: ${teklif['ilanID']}');
+      print('----------------------');
+    }
+
+
+    return querySnapshot.docs;
+  }
+
   Future<void> deleteIlan(String ilanID) async {
     await FirebaseFirestore.instance.collection('ilanlar').doc("$ilanID").update({
       'aktif': 0,
@@ -314,7 +349,7 @@ class _HA_HomePageState extends State<HA_HomePage> {
 
 
 
-      body: pageIndex ==0 ? // İlanlarım **********************
+      body: pageIndex ==0 ? // İlanlarım ********
 
       SingleChildScrollView(
         child: Center(
@@ -335,6 +370,7 @@ class _HA_HomePageState extends State<HA_HomePage> {
                     getUrun = data["urun"];
                     getHastalik = data["hastalik"];
                     getIlanID = data["ID"];
+
 
                     return Container(
                       child: Column(
@@ -449,7 +485,7 @@ class _HA_HomePageState extends State<HA_HomePage> {
             },
           ),
         ),
-      ) : pageIndex == 1 ?  // İlan Ekle **********************
+      ) : pageIndex == 1 ?  // İlan Ekle ********
       SingleChildScrollView(
         child: Center(
           child: Column(
@@ -999,39 +1035,192 @@ class _HA_HomePageState extends State<HA_HomePage> {
 
 
         ),
-      ) : pageIndex == 2 ? // İlan Tekliflerim **********************
+      ) : pageIndex == 2 ? // İlan Tekliflerim ********
       SingleChildScrollView(
         child: Center(
-          child: Column(
-
-            children: [
-             SizedBox(height: eYuk/15,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  Text(
-                    ' Henüz ilanlarına\n bir teklif gelmedi.',
-                    style:  GoogleFonts.getFont('Balsamiq Sans',
-                        fontSize: eGen/15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                  ),
-                  ),
-                ]
-              ),
-
-
-
-
+          child: FutureBuilder(
+            future: getTeklifler(),
+            builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Hata: ${snapshot.error}');
+              } else {
+                return Column(
+                  children: snapshot.data!.map((document) {
+                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                    getIl = data['il'];
+                    getIlce = data["ilce"];
+                    getDekar = data["dekar"];
+                    getUrun = data["urun"];
+                    getHastalik = data["hastalik"];
+                    getIlanID = data["ID"];
+                    String? teklifID = "";
+                    String? getTeklif = "";
+                    String? gecisizni = "false";
 
 
-            ],
+                    for (var teklif in teklifler) {
 
 
+
+                      if(teklif['ilanID']==getIlanID){
+                        print('ilanID = $getIlanID');
+                        getTeklif = teklif['teklif'];
+                        print("test");
+                        gecisizni = "true";
+                        print("if $gecisizni");
+
+
+
+
+
+                      }
+
+                    }
+
+
+
+                    if(gecisizni=="false"){
+                      return Container();
+
+                    }else{
+                      gecisizni = "false";
+                      return Container(
+                          child: Column(
+                            children: [
+                              SizedBox(height: eYuk/40,),
+                              Container(
+                                width: eGen/1.1,
+                                height: eYuk/4,
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: eYuk/100,),
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getIl - $getIlce",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getDekar Dönüm $getUrun",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("$getHastalik İlaçlaması",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: eYuk/70,),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: eGen/40,),
+                                        Text("Dekar başı $getTeklif Türk Lirası",style: GoogleFonts.getFont('Balsamiq Sans',
+                                            fontSize: eGen/25,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+
+                                        ),),
+                                      ],
+                                    ),
+                                    SizedBox(height: eYuk/45,),
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.black,
+                                              width: 2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: SizedBox(height: eYuk/20, width: eGen/3,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                // iptal et
+                                                deleteIlan(getIlanID!);
+
+
+
+                                              },
+                                              child: Text("Kabul Et",style: GoogleFonts.getFont('Balsamiq Sans',
+                                                fontSize: eGen/20,
+                                                fontWeight: FontWeight.bold,
+                                              ),),
+                                              style: ElevatedButton.styleFrom(
+                                                primary: Colors.green,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10), // Kenarların oval yapısı
+                                                ),
+
+
+                                              ),
+                                            ),),
+                                        ),
+                                        SizedBox(width: eGen/40,),
+
+
+                                      ],
+                                    )
+
+                                  ],
+                                ),
+
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.black, // Çerçevenin rengini belirleyin
+                                    width: 2, // Çerçevenin kalınlığını belirleyin
+                                  ),
+                                  borderRadius: BorderRadius.circular(15), // Kenarları oval yapın
+                                ),
+                              ),
+
+
+
+                            ],
+                          )
+                      );
+
+                    }
+
+
+
+
+
+
+
+                  }).toList(),
+                );
+              }
+            },
           ),
-
-
         ),
 
 
@@ -1052,7 +1241,7 @@ class _HA_HomePageState extends State<HA_HomePage> {
 
 
 
-      ) : pageIndex == 3 ? // Profilim **********************
+      ) : pageIndex == 3 ? // Profilim ********
       SingleChildScrollView(
         child: Center(
           child: Column(
