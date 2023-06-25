@@ -1,7 +1,14 @@
+import 'dart:collection';
+
 import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skylancer/KayitSayfalar/HizmetVerRegisterPage1.dart';
+import 'package:skylancer/HizmetVeren/HV_HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'HizmetAlRegisterPage.dart';
 
 
@@ -94,7 +101,7 @@ class _RegisterPage1State extends State<RegisterPage1> {
                   fontSize: eGen/16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
-        ),),
+                  ),),
               ],
             ),
           SizedBox(height: eYuk/13,),

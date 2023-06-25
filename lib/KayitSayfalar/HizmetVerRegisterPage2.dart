@@ -1,6 +1,11 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skylancer/HizmetVeren/HV_HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:skylancer/main.dart';
@@ -460,7 +465,7 @@ class _HizmetVerRegisterPage2 extends State<HizmetVerRegisterPage2> {
 
 
                             return "Hata";
-                          }else if(value.length<6){
+                          }else if(value!.length<6){
                             return "Hata";
                           }
                           return null;
@@ -592,14 +597,11 @@ class _HizmetVerRegisterPage2 extends State<HizmetVerRegisterPage2> {
                     onPressed: () {
                       kontrol();
 
-
                       if (_formKey.currentState!.validate()) {
                         // Form doğrulandığında addUser() metodu çağrılır
                         // addUser();
                         print("AddUser calisti");
                       }
-
-
 
 
                     },

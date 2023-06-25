@@ -1,6 +1,12 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skylancer/KayitSayfalar/HizmetVerRegisterPage2.dart';
+import 'package:skylancer/HizmetVeren/HV_HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fancy_snackbar/fancy_snackbar.dart';
 
@@ -372,7 +378,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
 
 
                               return "Hata";
-                            }else if(value.length < 3){
+                            }else if(value!.length < 3){
                               return "Karakter az";
                             }
                             return null;
@@ -402,7 +408,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
                             ),
 
                             errorStyle: TextStyle(
-                              fontSize: 10.001,
+                              fontSize: 0.001,
                             ),
                             errorBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -442,7 +448,6 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
                           onChanged: (value) {
                             setState(() {
                               konumSirket = value;
-                              print("ad: $value");
                             });
                           },
                           validator: (value) {
@@ -451,7 +456,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
 
 
                               return "Hata";
-                            }else if(value.length < 3){
+                            }else if(value!.length < 3){
                               return "Karakter az";
                             }
                             return null;
@@ -580,7 +585,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
 
 
                               return "Hata";
-                            }else if(value.length < 3){
+                            }else if(value!.length < 3){
                               return "Karakter az";
                             }
                             return null;
@@ -659,7 +664,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
 
 
                               return "Hata";
-                            }else if(value.length < 3){
+                            }else if(value!.length < 3){
                               return "Karakter az";
                             }
                             return null;
@@ -740,7 +745,7 @@ class _HizmetVerRegisterPage1 extends State<HizmetVerRegisterPage1> {
 
 
                               return "Hata";
-                            }else if(value.length < 3){
+                            }else if(value!.length < 3){
                               return "Karakter az";
                             }
                             return null;

@@ -1,6 +1,13 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skylancer/HizmetVeren/HV_HomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fancy_snackbar/fancy_snackbar.dart';
 import 'package:skylancer/main.dart';
@@ -235,7 +242,7 @@ class _HizmetAlRegisterPage extends State<HizmetAlRegisterPage> {
 
 
                           return "Hata";
-                        }else if(value.length < 3){
+                        }else if(value!.length < 3){
                           return "Karakter az";
                         }
                         return null;
@@ -313,7 +320,7 @@ class _HizmetAlRegisterPage extends State<HizmetAlRegisterPage> {
 
 
                           return "Hata";
-                        }else if(value.length < 3){
+                        }else if(value!.length < 3){
                           return "karakter hatası";
                         }
                         return null;
@@ -634,7 +641,7 @@ class _HizmetAlRegisterPage extends State<HizmetAlRegisterPage> {
 
 
                           return "Hata";
-                        }else if(value.length<6){
+                        }else if(value!.length<6){
                           return "Hata";
                         }
                         return null;
